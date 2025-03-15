@@ -2,10 +2,9 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
-
+from pytils.translit import slugify
 
 from notes.models import Note
-
 
 User = get_user_model()
 
@@ -40,3 +39,15 @@ class BaseTest(TestCase):
         cls.author_client.force_login(cls.author)
         cls.not_author_client = Client()
         cls.not_author_client.force_login(cls.not_author)
+
+        cls.note_data = {
+            'title': 'Новый заголовок',
+            'text': 'Новый текст',
+            'slug': 'new-slug'
+        }
+
+    # @classmethod
+    # def get_note_data(self):
+    #     data = self.note_data.copy()
+    #     data['slug'] = slugify(data['title'])
+    #     return data
