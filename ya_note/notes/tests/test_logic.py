@@ -6,6 +6,7 @@ from notes.models import Note
 from notes.forms import WARNING
 from .testing_utils import (
     ADD_URL,
+    LOGIN_URL,
     DELETE_NOTE_URL,
     EDIT_NOTE_URL,
     BaseTest
@@ -62,29 +63,36 @@ class TestLogic(BaseTest):
 
     def test_note_creation_without_authorization(self):
         initial_note_count = Note.objects.count()
-        self.assertIn(
-            self.client.post(ADD_URL, self.note_data).status_code,
-            [302, 403]
-        )
+        responce = self.client.post(ADD_URL, self.note_data)
+        self.assertEqual(responce.status_code, 302)
+        self.assertRedirects(responce, f'{LOGIN_URL}?next={ADD_URL}')
         self.assertEqual(Note.objects.count(), initial_note_count)
 
-    def test_reader_cannot_delete_note(self):
+    def test_not_author_cannot_delete_note(self):
+        initial_note_count = Note.objects.count()
         self.assertEqual(
             self.not_author_client.post(DELETE_NOTE_URL).status_code,
             HTTPStatus.NOT_FOUND
         )
+        self.assertEqual(Note.objects.count(), initial_note_count)
 
-    def test_reader_cannot_edit_note(self):
+    def test_not_author_cannot_edit_note(self):
+        original_note = Note.objects.get(slug=self.note.slug)
         self.assertEqual(
             self.not_author_client.post(EDIT_NOTE_URL).status_code,
             HTTPStatus.NOT_FOUND
         )
+        note_after_attempt = Note.objects.get(slug=self.note.slug)
+        self.assertEqual(note_after_attempt.title, original_note.title)
+        self.assertEqual(note_after_attempt.text, original_note.text)
 
     def test_author_can_edit_note(self):
-        self.author_client
-        url = EDIT_NOTE_URL
-        response = self.author_client.post(url, data=self.note_data)
-        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+        self.assertEqual(
+            self.author_client.post(
+                EDIT_NOTE_URL, data=self.note_data
+            ).status_code, 
+            HTTPStatus.FOUND
+        )
         self.note.refresh_from_db()
         self.assertEqual(self.note.title, self.note_data['title'])
         self.assertEqual(self.note.text, self.note_data['text'])
@@ -92,7 +100,10 @@ class TestLogic(BaseTest):
         self.assertEqual(self.note.author, self.author)
 
     def test_author_can_delete_note(self):
+        initial_note_count = Note.objects.count()
         self.assertEqual(
             self.author_client.post(DELETE_NOTE_URL).status_code,
             HTTPStatus.FOUND
         )
+        self.assertEqual(Note.objects.count(), initial_note_count - 1)
+
