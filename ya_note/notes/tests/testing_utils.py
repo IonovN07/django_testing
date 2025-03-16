@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.test.client import Client
 from django.urls import reverse
-from pytils.translit import slugify
 
 from notes.models import Note
 
@@ -45,9 +44,3 @@ class BaseTest(TestCase):
             'text': 'Новый текст',
             'slug': 'new-slug'
         }
-
-    # @classmethod
-    # def get_note_data(self):
-    #     data = self.note_data.copy()
-    #     data['slug'] = slugify(data['title'])
-    #     return data
