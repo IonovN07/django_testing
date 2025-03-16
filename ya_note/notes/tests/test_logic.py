@@ -90,7 +90,7 @@ class TestLogic(BaseTest):
         self.assertEqual(
             self.author_client.post(
                 EDIT_NOTE_URL, data=self.note_data
-            ).status_code, 
+            ).status_code,
             HTTPStatus.FOUND
         )
         self.note.refresh_from_db()
@@ -106,4 +106,3 @@ class TestLogic(BaseTest):
             HTTPStatus.FOUND
         )
         self.assertEqual(Note.objects.count(), initial_note_count - 1)
-
