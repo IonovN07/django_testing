@@ -1,47 +1,45 @@
-import pytest
 from http import HTTPStatus
 
-from django.urls import reverse
+import pytest
 from pytest_django.asserts import assertRedirects
 
+HOME_URL = pytest.lazy_fixture('home_url')
+DETAIL_URL = pytest.lazy_fixture('detail_url')
+LOGIN_URL = pytest.lazy_fixture('login_url')
+LOGOUT_URL = pytest.lazy_fixture('logout_url')
+SIGNUP_URL = pytest.lazy_fixture('signup_url')
+EDIT_URL = pytest.lazy_fixture('edit_url')
+DELETE_URL = pytest.lazy_fixture('delete_url')
 
-@pytest.mark.parametrize(
-    'name',
-    ('news:home', 'news:detail', 'users:login', 'users:logout', 'users:signup')
-)
-@pytest.mark.django_db
-def test_pages_availability(client, name, news):
-    response = client.get(
-        reverse(name, args=(news.id,))
-        if name == 'news:detail' else reverse(name)
-    )
-    assert response.status_code == HTTPStatus.OK
+pytestmark = pytest.mark.django_db
 
 
 @pytest.mark.parametrize(
-    'parametrized_client, expected_status',
-    (
-        (pytest.lazy_fixture('not_author_client'), HTTPStatus.NOT_FOUND),
-        (pytest.lazy_fixture('author_client'), HTTPStatus.OK)
-    ),
+    'url, client_fixture, expected_status',
+    [
+        (HOME_URL, 'client', HTTPStatus.OK),
+        (DETAIL_URL, 'client', HTTPStatus.OK),
+        (LOGIN_URL, 'client', HTTPStatus.OK),
+        (LOGOUT_URL, 'client', HTTPStatus.OK),
+        (SIGNUP_URL, 'client', HTTPStatus.OK),
+        (EDIT_URL, 'not_author_client', HTTPStatus.NOT_FOUND),
+        (EDIT_URL, 'author_client', HTTPStatus.OK),
+        (DELETE_URL, 'not_author_client', HTTPStatus.NOT_FOUND),
+        (DELETE_URL, 'author_client', HTTPStatus.OK),
+    ],
 )
-@pytest.mark.parametrize(
-    'name',
-    ('news:edit', 'news:delete'),
-)
-def test_pages_availability_for_different_users(
-    parametrized_client, name, comment, expected_status
-):
-    response = parametrized_client.get(reverse(name, args=(comment.id,)))
-    assert response.status_code == expected_status
+def test_pages_availability(url, client_fixture, expected_status, request):
+    assert request.getfixturevalue(
+        client_fixture
+    ).get(url).status_code == expected_status
 
 
 @pytest.mark.parametrize(
-    'name',
-    ('news:edit', 'news:delete'),
+    'url, expected_login_url',
+    [
+        (EDIT_URL, LOGIN_URL),
+        (DELETE_URL, LOGIN_URL),
+    ],
 )
-def test_redirect_for_anonymous_client(client, name, comment):
-    login_url = reverse('users:login')
-    url = reverse(name, args=(comment.id,))
-    expected_url = f'{login_url}?next={url}'
-    assertRedirects(client.get(url), expected_url)
+def test_redirect_for_anonymous_client(client, url, expected_login_url):
+    assertRedirects(client.get(url), f'{expected_login_url}?next={url}')
