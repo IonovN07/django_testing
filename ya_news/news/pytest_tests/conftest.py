@@ -87,26 +87,22 @@ def comment(author, news, db):
 
 @pytest.fixture
 def sample_news(db):
-    today = datetime.today() # Одноразовая переменная
     News.objects.bulk_create(
         [
             News(
                 title=f'Заголовок {index+1}',
                 text=f'Текст заметки {index+1}',
-                date=today - timedelta(days=index)
+                date=datetime.today() - timedelta(days=index)
             ) for index in range(NEWS_COUNT_ON_HOME_PAGE)
         ]
     )
 
 
-
 @pytest.fixture
 def sample_comments(author, news, db):
-    now = timezone.now() # Одноразовая переменная
     for index in range(3):
         comment = Comment.objects.create(
             news=news, author=author, text=f'Tекст комментария {index}',
         )
-        comment.created = now + timedelta(days=index)
+        comment.created = timezone.now() + timedelta(days=index)
         comment.save()
-
