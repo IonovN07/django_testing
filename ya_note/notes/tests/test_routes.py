@@ -55,12 +55,12 @@ class TestRoutes(BaseTest):
 
     def test_redirects_for_anonymous_client(self):
         cases = [
-            (EDIT_NOTE_URL, REDIRECT_EDIT_URL)
-            (DELETE_NOTE_URL, REDIRECT_DELETE_URL)
-            (DETAIL_NOTE_URL, REDIRECT_DETAIL_URL)
-            (ADD_URL, REDIRECT_ADD_URL)
-            (LIST_URL, REDIRECT_LIST_URL)
-            (SUCCESS_URL, REDIRECT_SUCCESS_URL)
+            (EDIT_NOTE_URL, REDIRECT_EDIT_URL),
+            (DELETE_NOTE_URL, REDIRECT_DELETE_URL),
+            (DETAIL_NOTE_URL, REDIRECT_DETAIL_URL),
+            (ADD_URL, REDIRECT_ADD_URL),
+            (LIST_URL, REDIRECT_LIST_URL),
+            (SUCCESS_URL, REDIRECT_SUCCESS_URL),
         ]
         for url, redirect_url in cases:
             with self.subTest(url=url):

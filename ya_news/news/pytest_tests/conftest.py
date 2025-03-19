@@ -53,6 +53,7 @@ def login_redirect_edit_url(login_url, edit_url):
 def login_redirect_delete_url(login_url, delete_url):
     return f"{login_url}?next={delete_url}"
 
+
 @pytest.fixture
 def redirect_detail_url(detail_url):
     return f'{detail_url}#comments'

@@ -6,7 +6,6 @@ from notes.models import Note
 from notes.forms import WARNING
 from .testing_utils import (
     ADD_URL,
-    LOGIN_URL,
     DELETE_NOTE_URL,
     EDIT_NOTE_URL,
     REDIRECT_ADD_URL,
@@ -17,7 +16,7 @@ from .testing_utils import (
 class TestLogic(BaseTest):
 
     def test_not_unique_slug(self):
-        notes_before = set(Note.objects.all()) # привести к единой переменной
+        existing_notes = set(Note.objects.all())
         self.note_data['slug'] = self.note.slug
         self.assertFormError(
             self.author_client.post(ADD_URL, data=self.note_data),
@@ -25,7 +24,7 @@ class TestLogic(BaseTest):
             'slug',
             errors=(self.note.slug + WARNING)
         )
-        self.assertEqual(notes_before, set(Note.objects.all()))
+        self.assertEqual(existing_notes, set(Note.objects.all()))
 
     def test_slug_is_auto_generated_when_not_provided(self):
         self.note_data.pop('slug')
@@ -36,8 +35,8 @@ class TestLogic(BaseTest):
             ).status_code,
             302
         )
-        new_notes = set(Note.objects.all())
-        created_notes = new_notes - existing_notes
+        current_notes = set(Note.objects.all())
+        created_notes = current_notes - existing_notes
         self.assertEqual(len(created_notes), 1)
         new_note = created_notes.pop()
         self.assertEqual(new_note.slug, slugify(self.note_data['title']))
@@ -51,8 +50,8 @@ class TestLogic(BaseTest):
             self.author_client.post(ADD_URL, self.note_data).status_code,
             302
         )
-        new_notes = set(Note.objects.all())
-        created_notes = new_notes - existing_notes
+        current_notes = set(Note.objects.all())
+        created_notes = current_notes - existing_notes
         self.assertEqual(len(created_notes), 1)
         new_note = created_notes.pop()
         self.assertEqual(new_note.title, self.note_data['title'])
@@ -61,19 +60,19 @@ class TestLogic(BaseTest):
         self.assertEqual(new_note.author, self.author)
 
     def test_anonymous_user_cant_create_note(self):
-        notes_before = set(Note.objects.all())
+        existing_notes = set(Note.objects.all())
         responce = self.client.post(ADD_URL, self.note_data)
         self.assertEqual(responce.status_code, 302)
         self.assertRedirects(responce, REDIRECT_ADD_URL)
-        self.assertEqual(notes_before, set(Note.objects.all()))
+        self.assertEqual(existing_notes, set(Note.objects.all()))
 
     def test_not_author_cannot_delete_note(self):
-        notes_before = set(Note.objects.all())
+        existing_notes = set(Note.objects.all())
         self.assertEqual(
             self.not_author_client.post(DELETE_NOTE_URL).status_code,
             HTTPStatus.NOT_FOUND
         )
-        self.assertEqual(notes_before, set(Note.objects.all()))
+        self.assertEqual(existing_notes, set(Note.objects.all()))
         note_after_attempt = Note.objects.get(slug=self.note.slug)
         self.assertEqual(note_after_attempt.title, self.note.title)
         self.assertEqual(note_after_attempt.text, self.note.text)
@@ -105,13 +104,13 @@ class TestLogic(BaseTest):
         self.assertEqual(updated_note.author, self.note.author)
 
     def test_author_can_delete_note(self):
-        notes_before = set(Note.objects.all())
+        existing_notes = set(Note.objects.all())
         self.assertEqual(
             self.author_client.post(DELETE_NOTE_URL).status_code,
             HTTPStatus.FOUND
         )
-        notes_after = set(Note.objects.all())
-        notes = notes_before - notes_after
+        current_notes = set(Note.objects.all())
+        notes = existing_notes - current_notes
         self.assertEqual(len(notes), 1)
         note = notes.pop()
         self.assertEqual(note.title, self.note.title)

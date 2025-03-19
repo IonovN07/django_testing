@@ -46,8 +46,6 @@ class BaseTest(TestCase):
         cls.author_client.force_login(cls.author)
         cls.not_author_client = Client()
         cls.not_author_client.force_login(cls.not_author)
-        
-
         cls.note_data = {
             'title': 'Новый заголовок',
             'text': 'Новый текст',
