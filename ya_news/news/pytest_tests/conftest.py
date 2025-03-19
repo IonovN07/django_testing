@@ -45,6 +45,20 @@ def delete_url(comment):
 
 
 @pytest.fixture
+def login_redirect_edit_url(login_url, edit_url):
+    return f"{login_url}?next={edit_url}"
+
+
+@pytest.fixture
+def login_redirect_delete_url(login_url, delete_url):
+    return f"{login_url}?next={delete_url}"
+
+@pytest.fixture
+def redirect_detail_url(detail_url):
+    return f'{detail_url}#comments'
+
+
+@pytest.fixture
 def author(django_user_model):
     return django_user_model.objects.create(username='Автор')
 
@@ -69,6 +83,11 @@ def not_author_client(not_author):
 
 
 @pytest.fixture
+def anonymous_client():
+    return Client()
+
+
+@pytest.fixture
 def news(db):
     return News.objects.create(
         title='Заголовок',
@@ -88,13 +107,11 @@ def comment(author, news, db):
 @pytest.fixture
 def sample_news(db):
     News.objects.bulk_create(
-        [
-            News(
-                title=f'Заголовок {index+1}',
-                text=f'Текст заметки {index+1}',
-                date=datetime.today() - timedelta(days=index)
-            ) for index in range(NEWS_COUNT_ON_HOME_PAGE)
-        ]
+        News(
+            title=f'Заголовок {index+1}',
+            text=f'Текст заметки {index+1}',
+            date=datetime.today() - timedelta(days=index)
+        ) for index in range(NEWS_COUNT_ON_HOME_PAGE)
     )
 
 

@@ -11,17 +11,9 @@ from notes.forms import NoteForm
 class TestFormPage(BaseTest):
 
     def test_notes_list_for_author(self):
-        self.assertIn(
-            self.note,
-            self.author_client.get(LIST_URL).context['object_list']
-        )
-        note = (
-            self.author_client.get(LIST_URL)
-            .context['object_list']
-            .filter(pk=self.note.id)
-            .first()
-        )
-        self.assertIsNotNone(note, "Заметка не найдена в контексте")
+        notes = self.author_client.get(LIST_URL).context['object_list']
+        self.assertIn(self.note, notes)
+        note = notes.get(pk=self.note.id)
         self.assertEqual(note.title, self.note.title)
         self.assertEqual(note.text, self.note.text)
         self.assertEqual(note.slug, self.note.slug)
@@ -38,7 +30,6 @@ class TestFormPage(BaseTest):
         form_urls = (ADD_URL, EDIT_NOTE_URL)
         for url in form_urls:
             with self.subTest(url):
-                self.assertIn('form', self.author_client.get(url).context)
                 self.assertIsInstance(
                     self.author_client.get(url).context.get('form'),
                     NoteForm
