@@ -11,6 +11,10 @@ COMMENT_DATA = {
     'text': 'Новый текст'
 }
 
+BAD_WORDS_DATA = [
+    {'text': f'Текст, {bad_word}, еще текст'} for bad_word in BAD_WORDS
+]
+
 pytestmark = pytest.mark.django_db
 
 
@@ -37,10 +41,9 @@ def test_user_can_create_comment(
     assert new_comment.author == not_author
 
 
-@pytest.mark.parametrize('bad_word', BAD_WORDS)
-def test_user_cant_use_bad_words(author_client, detail_url, bad_word):
-    data = {**COMMENT_DATA}
-    data['text'] = f'Текст, {bad_word}, еще текст'
+@pytest.mark.parametrize('bad_word_data', BAD_WORDS_DATA)
+def test_user_cant_use_bad_words(author_client, detail_url, bad_word_data):
+    data = {**COMMENT_DATA, **bad_word_data}
     form = author_client.post(
         detail_url,
         data=data

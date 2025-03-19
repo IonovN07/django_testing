@@ -35,7 +35,6 @@ class BaseTest(TestCase):
     def setUpTestData(cls):
         cls.author = User.objects.create(username='Автор')
         cls.not_author = User.objects.create(username='Не автор')
-        cls.anonymous_client = Client()
         cls.note = Note.objects.create(
             title='Заголовок',
             text='Текст заметки',

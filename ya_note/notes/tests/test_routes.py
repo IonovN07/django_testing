@@ -25,10 +25,10 @@ class TestRoutes(BaseTest):
 
     def test_response_codes(self):
         cases = [
-            [HOME_URL, self.anonymous_client, HTTPStatus.OK],
-            [LOGIN_URL, self.anonymous_client, HTTPStatus.OK],
-            [LOGOUT_URL, self.anonymous_client, HTTPStatus.OK],
-            [SIGNUP_URL, self.anonymous_client, HTTPStatus.OK],
+            [HOME_URL, self.client, HTTPStatus.OK],
+            [LOGIN_URL, self.client, HTTPStatus.OK],
+            [LOGOUT_URL, self.client, HTTPStatus.OK],
+            [SIGNUP_URL, self.client, HTTPStatus.OK],
 
             [SUCCESS_URL, self.not_author_client, HTTPStatus.OK],
             [LIST_URL, self.not_author_client, HTTPStatus.OK],
@@ -41,12 +41,12 @@ class TestRoutes(BaseTest):
             [DETAIL_NOTE_URL, self.author_client, HTTPStatus.OK],
             [DETAIL_NOTE_URL, self.not_author_client, HTTPStatus.NOT_FOUND],
 
-            [EDIT_NOTE_URL, self.anonymous_client, HTTPStatus.FOUND],
-            [DELETE_NOTE_URL, self.anonymous_client, HTTPStatus.FOUND],
-            [DETAIL_NOTE_URL, self.anonymous_client, HTTPStatus.FOUND],
-            [ADD_URL, self.anonymous_client, HTTPStatus.FOUND],
-            [LIST_URL, self.anonymous_client, HTTPStatus.FOUND],
-            [SUCCESS_URL, self.anonymous_client, HTTPStatus.FOUND]
+            [EDIT_NOTE_URL, self.client, HTTPStatus.FOUND],
+            [DELETE_NOTE_URL, self.client, HTTPStatus.FOUND],
+            [DETAIL_NOTE_URL, self.client, HTTPStatus.FOUND],
+            [ADD_URL, self.client, HTTPStatus.FOUND],
+            [LIST_URL, self.client, HTTPStatus.FOUND],
+            [SUCCESS_URL, self.client, HTTPStatus.FOUND]
         ]
 
         for url, client, expected_status in cases:
@@ -65,6 +65,6 @@ class TestRoutes(BaseTest):
         for url, redirect_url in cases:
             with self.subTest(url=url):
                 self.assertRedirects(
-                    self.anonymous_client.get(url),
+                    self.client.get(url),
                     redirect_url
                 )

@@ -84,11 +84,6 @@ def not_author_client(not_author):
 
 
 @pytest.fixture
-def anonymous_client():
-    return Client()
-
-
-@pytest.fixture
 def news(db):
     return News.objects.create(
         title='Заголовок',
