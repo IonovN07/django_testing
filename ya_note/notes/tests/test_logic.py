@@ -110,4 +110,3 @@ class TestLogic(BaseTest):
             HTTPStatus.FOUND
         )
         self.assertFalse(Note.objects.filter(id=self.note.id).exists())
-
