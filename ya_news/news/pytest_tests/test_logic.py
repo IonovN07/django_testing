@@ -43,10 +43,9 @@ def test_user_can_create_comment(
 
 @pytest.mark.parametrize('bad_word_data', BAD_WORDS_DATA)
 def test_user_cant_use_bad_words(author_client, detail_url, bad_word_data):
-    data = {**COMMENT_DATA, **bad_word_data}
     form = author_client.post(
         detail_url,
-        data=data
+        data={**COMMENT_DATA, **bad_word_data}
     ).context['form']
     assert 'text' in form.errors
     assert WARNING in form.errors['text']
